@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+
+flask.stdout.log
+flask.stderr.log
+
+data/*.csv
+data/tmp_check/
+!data/sample/
+!data/sample/*.csv
