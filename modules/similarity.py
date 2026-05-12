@@ -15,12 +15,13 @@ try:
         build_user_video_stats,
         cosine_similarity,
         load_user_profiles,
+        get_user_active_level,
     )
 except ImportError:
-    from utils import DEFAULT_DATA_DIR, build_user_video_stats, cosine_similarity, load_user_profiles
+    from utils import DEFAULT_DATA_DIR, build_user_video_stats, cosine_similarity, load_user_profiles,get_user_active_level
 
 
-class SimilarUserResult(TypedDict):
+class SimilarUserResult(TypedDict): #TypedDict是给编译器看的，标注这个类实际上还是一个字典，不是一个真正新的类型
     user_id: int
     similarity_score: float
     interest_categories: List[str]
@@ -34,7 +35,7 @@ def find_similar_users(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> List[SimilarUserResult]:
     users = load_user_profiles(data_dir)
-    if target_user_id not in users:
+    if target_user_id not in users: #判断user_id是否合法
         raise ValueError(f"User {target_user_id} does not exist.")
 
     _, _, user_category_scores, user_engagement = build_user_video_stats(data_dir)
@@ -47,8 +48,9 @@ def find_similar_users(
     for user_id, category_scores in user_category_scores.items():
         if user_id == target_user_id:
             continue
-
-        score = cosine_similarity(target_vector, dict(category_scores))
+        target_active_level = get_user_active_level(users,target_user_id)
+        active_level = get_user_active_level(users,user_id)
+        score = cosine_similarity(target_vector, dict(category_scores),target_active_level,active_level)
         if score <= 0:
             continue
 
