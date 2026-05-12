@@ -86,4 +86,4 @@ if __name__ == "__main__":
         top_n=args.top,
         data_dir=args.data_dir,
     )
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    print(json.dumps(result, indent=2, ensure_ascii=False)) #输出json文件
