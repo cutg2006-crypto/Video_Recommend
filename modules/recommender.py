@@ -45,7 +45,7 @@ def build_global_popularity(
             popularity_scores[video_id] += score
             category_video_popularity[category][video_id] += score
 
-    return dict(popularity_scores), { #注意：dict和defaultdict亦有区别
+    return dict(popularity_scores), {
         category: dict(video_popularity)
         for category, video_popularity in category_video_popularity.items()
     }
@@ -79,54 +79,40 @@ def recommend_videos(
         similarity_score = float(user["similarity_score"])
 
         for video_id, raw_score in user_video_scores[similar_user_id].items():
-            if video_id in seen_videos: #如果在已经看过的视频里，则不再推荐
+            if video_id in seen_videos:
                 continue
             candidate_scores[video_id] += raw_score * similarity_score
 
     favorite_categories_dict = {
-        category:scores
-        for category, scores in sorted(
+        category: score
+        for category, score in sorted(
             category_scores.items(),
             key=lambda item: item[1],
             reverse=True,
-        )[:3] #只取前三个
+        )[:3]
     }
 
-    favorite_categories = [
-        category
-        for category,_ in favorite_categories_dict.items()
-    ]
+    favorite_categories = list(favorite_categories_dict.keys())
 
-    favorite_scores = [
-        scores 
-        for _,scores in favorite_categories_dict.items()
-    ]
+    if favorite_categories_dict:
+        max_score = max(favorite_categories_dict.values())
+        favorite_category_weights = {
+            category: score / max_score
+            for category, score in favorite_categories_dict.items()
+        }
 
-    max_scores = max(favorite_scores)
+        for category, normalized_score in favorite_category_weights.items():
+            ranked_category_videos = sorted(
+                category_video_popularity[category].items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )[:100]
+            for video_id, popularity in ranked_category_videos:
+                if video_id in seen_videos:
+                    continue
+                candidate_scores[video_id] += popularity * 0.15 * normalized_score
 
-    favorite_scores =[
-        score / max_scores
-        for score in favorite_scores    
-    ]
-
-    for category in favorite_categories:
-        if category == favorite_categories[0]:
-            normalized_scores = favorite_scores[0]
-        elif category == favorite_categories[1]:
-            normalized_scores = favorite_scores[1]
-        else:
-            normalized_scores = favorite_scores[2]
-        ranked_category_videos = sorted(
-            category_video_popularity[category].items(),
-            key=lambda item: item[1],
-            reverse=True,
-        )[:100] #按照降序选出前100高分的该品类视频
-        for video_id, popularity in ranked_category_videos:
-            if video_id in seen_videos:
-                continue
-            candidate_scores[video_id] += popularity * 0.15 * normalized_scores
-
-    if not candidate_scores: #如果候选名单依旧是空的，就改用热门视频推荐
+    if not candidate_scores:
         for video_id, popularity in sorted(
             popularity_scores.items(),
             key=lambda item: item[1],
@@ -135,7 +121,7 @@ def recommend_videos(
             if video_id in seen_videos:
                 continue
             candidate_scores[video_id] = popularity * 0.1
-            if len(candidate_scores) >= top_n :
+            if len(candidate_scores) >= top_n:
                 break
 
     ranked_videos = sorted(
@@ -153,7 +139,7 @@ def recommend_videos(
                 "title": video["title"],
                 "category": video["category"],
                 "tags": video["tags"].split(";"),
-                "recommend_score": round(score, 4),#round(a,b)把a四舍五入，保留b位小数
+                "recommend_score": round(score, 4),
                 "reason": build_reason(video["category"], favorite_categories),
             }
         )
