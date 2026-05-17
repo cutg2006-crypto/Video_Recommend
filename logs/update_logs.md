@@ -35,3 +35,23 @@ shared ,commented也是同理
 
 修改了F3计算相似度的细节，加上了考虑用户是否为同一种活跃程度的用户的功能
 F3的找相似用户的函数还在F4被调用了
+
+# 5.17
+
+修改 F5 受欢迎程度预测功能。
+
+原来的热度预测虽然前端可以输入历史日数，比如 30 天、60 天，但是预测核心只用了最近 7 天计算基础热度、最近 14 天计算趋势，所以 history_days 对预测结果影响不明显，主要只是影响页面展示的历史数据。
+
+本次修改了 hot_predictor.py 中的预测逻辑：
+
+1. 新增 average 函数，用于计算整段历史数据的平均热度。
+2. 新增 weighted_average 函数，让越靠近当前日期的数据权重稍高。
+3. 新增 calculate_linear_trend 函数，用用户输入的完整 history_days 历史数据做线性趋势分析。
+4. 修改 predict_future_heat 函数，不再固定只看最近 7 天或 14 天，而是根据前端传入的 history_days 取整段历史数据进行预测。
+5. 修改 recent_average_heat 和趋势判断逻辑，使其基于整段历史数据，而不是只基于最近 7 天。
+
+验证方式：
+
+使用同一个视频 video_id=80，预测未来 7 天，只修改 history_days。
+
+history_days=30 时，future_series 和 history_days=60 时的 future_series 不同，说明前端输入的历史天数已经真正参与预测，原来固定 7 天/14 天的问题已解决。
