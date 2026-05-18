@@ -249,7 +249,6 @@ def generate_watch_logs(
                 video_id = random.choice(category_to_video_ids[category])
                 is_preferred = category in interests
                 finish_rate = generate_finish_rate(is_preferred)
-                watch_seconds = random.randint(3, 180)
                 liked, commented, shared = generate_engagement_flags(
                     is_preferred,
                     finish_rate,
@@ -266,7 +265,6 @@ def generate_watch_logs(
                         "log_id": log_id,
                         "user_id": user_id,
                         "video_id": video_id,
-                        "watch_seconds": watch_seconds,
                         "finish_rate": finish_rate,
                         "liked": liked,
                         "commented": commented,
