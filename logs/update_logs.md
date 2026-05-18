@@ -64,3 +64,5 @@ history_days=30 时，future_series 和 history_days=60 时的 future_series 不
 在recommender.py中，修改了recommend_videos中的提取相似用户对视频评分的逻辑：原先是取完为止，现在只取前30个，避免用时太久。
 
 将index.html中的展示部分进行了汉化
+
+给hot_predictor.py recommender.py utils.py中可能会复用的函数加了缓存，且缩小了日志和用户的数据集大小，稍微加速了计算与前端页面显示结果的速度。

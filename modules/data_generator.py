@@ -324,7 +324,7 @@ def parse_args() -> argparse.Namespace:
         description="Generate mock short-video recommendation data."
     )
     parser.add_argument("--videos", type=int, default=100_000)
-    parser.add_argument("--users", type=int, default=50_000)
+    parser.add_argument("--users", type=int, default=20_000)
     parser.add_argument("--seed", type=int, default=20260511)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_DIR)
     return parser.parse_args()

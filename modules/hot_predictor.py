@@ -3,6 +3,7 @@ F5: predict the future popularity trend of a target video.
 """
 
 from __future__ import annotations
+from functools import lru_cache
 
 import argparse
 import csv
@@ -27,7 +28,7 @@ class FutureSeriesItem(TypedDict):
     date: str
     predicted_heat: float
 
-
+@lru_cache(maxsize=1)
 def build_video_daily_heat(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Tuple[Dict[int, Dict[date, float]], date, date]:
