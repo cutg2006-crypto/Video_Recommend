@@ -3,6 +3,7 @@ Shared helpers for recommendation modules.
 """
 
 from __future__ import annotations
+from functools import lru_cache
 
 import csv
 import math
@@ -27,7 +28,7 @@ CATEGORY_ORDER = [
     "life",
 ]
 
-
+@lru_cache(maxsize=1)
 def load_videos_by_id(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Dict[int, Dict[str, str]]:
@@ -42,7 +43,7 @@ def load_videos_by_id(
 
     return videos
 
-
+@lru_cache(maxsize=1)
 def load_user_profiles(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Dict[int, Dict[str, str]]:
@@ -57,7 +58,7 @@ def load_user_profiles(
 
     return users
 
-
+@lru_cache(maxsize=1)
 def build_user_video_stats(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Tuple[
@@ -129,7 +130,7 @@ def normalize_counter(counter: Mapping[str, float], keys: List[str]) -> List[flo
         return [0.0 for _ in keys]
     return [counter.get(key, 0.0) / total for key in keys]
 
-
+@lru_cache(maxsize=1)
 def build_video_viewer_stats(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Tuple[

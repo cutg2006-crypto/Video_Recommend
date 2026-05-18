@@ -62,3 +62,5 @@ history_days=30 时，future_series 和 history_days=60 时的 future_series 不
 修改了日志生成逻辑，删去了观看时长这个没有在后面模块被用过的变量
 
 在recommender.py中，修改了recommend_videos中的提取相似用户对视频评分的逻辑：原先是取完为止，现在只取前30个，避免用时太久。
+
+将index.html中的展示部分进行了汉化

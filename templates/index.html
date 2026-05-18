@@ -1,48 +1,35 @@
 ﻿<!doctype html>
 
-<!--
 
-Python (后端)
-干什么：算数据、查数据、提供内容。
-来源：summary.video_count、video.title 都是它给的。
-HTML (骨架 / 结构)
-干什么：搭架子、占位、排版。
-你看到的 div、header、main、span 全是它。
-JavaScript (前端逻辑 / 动作)
-干什么：管点击、管刷新、管交互。
-你看到的 id="sample-videos-list"、data-refresh="videos" 都是给它用的。
-
--->
 
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Short Video Recommendation Console</title>
+    <title>短视频推荐系统</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> <!-- 链接到style.css -->
   </head>
   <body>
     <div class="app-shell"> 
       <header class="hero">
         <div>
-          <p class="eyebrow">Short Video Intelligence Console</p>
-          <h1>Short Video Behavior Analysis and Recommendation System</h1>
+          <p class="eyebrow">短视频推荐系统控制台</p>
+          <h1>短视频行为分析与推荐系统</h1>
           <p class="hero-copy">
-            Explore the simulated dataset, user similarity, personalized recommendation,
-            popularity forecasting, and clustering results from one Flask dashboard.
+            该系统实现了浏览数据集、对用户进行相似用户分析、视频热度预测等功能
           </p> <!--这个</p>是用来段落标签的意思-->
         </div>
         <div class="hero-stats">
           <div class="metric-card">
-            <span class="metric-label">Video Records</span> <!--span:不换行-->
+            <span class="metric-label">视频信息总数s</span> <!--span:不换行-->
             <strong>{{ summary.video_count }}</strong> <!---->
           </div>
           <div class="metric-card">
-            <span class="metric-label">User Records</span>
+            <span class="metric-label">用户信息总数</span>
             <strong>{{ summary.user_count }}</strong>
           </div>
           <div class="metric-card">
-            <span class="metric-label">Watch Logs</span>
+            <span class="metric-label">用户观看日志总数</span>
             <strong>{{ summary.watch_log_count }}</strong> <!-- Jinja 双大括号是 Flask 模板输出语法 -->
           </div>
         </div>
@@ -52,16 +39,16 @@ JavaScript (前端逻辑 / 动作)
         <section class="panel wide">
           <div class="panel-heading">
             <div>
-              <h2>Dataset Overview</h2>
-              <p>This page calls the Python analysis modules directly and renders live JSON results.</p>
+              <h2>F1/F2数据集总览</h2>
+              <p>在此随机查看视频与用户信息</p>
             </div>
           </div>
           <!--展示用户与视频-->
           <div class="overview-grid">
             <div class="subpanel">
               <div class="subpanel-header">
-                <h3>Sample Videos</h3>
-                <button class="secondary-button" type="button" data-refresh="videos">Try Randomizing~</button> <!--这个data-refresh="videos"是给js看的-->
+                <h3>视频样例</h3>
+                <button class="secondary-button" type="button" data-refresh="videos">换一批</button> <!--这个data-refresh="videos"是给js看的-->
               </div>
               <div class="chip-list" id="sample-videos-list"> <!--class给css用，id给js用-->
                 {% for video in summary.sample_videos %}
@@ -75,8 +62,8 @@ JavaScript (前端逻辑 / 动作)
             </div>
             <div class="subpanel">
               <div class="subpanel-header">
-                <h3>Sample Users</h3>
-                <button class="secondary-button" type="button" data-refresh="users">Randomize</button>
+                <h3>用户样例</h3>
+                <button class="secondary-button" type="button" data-refresh="users">换一批</button>
               </div>
               <div class="chip-list" id="sample-users-list">
                 {% for user in summary.sample_users %} <!--这是flask模板的for循环语法-->
@@ -94,114 +81,114 @@ JavaScript (前端逻辑 / 动作)
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h2>F3 Similar Users</h2>
-              <p>Find viewers whose category interests are closest to the target user.</p>
+              <h2>F3 相似用户分析</h2>
+              <p>实现了找到目标用户的相似用户的功能</p>
             </div>
           </div>
           <form class="query-form" data-endpoint="/api/similar-users" data-target="similar-users-result"> <!--请求后端是/api/similar-users，结果显示地方是similar-users-result-->
             <label>
-              User ID
+              用户编号
               <input type="number" name="user_id" min="1" value="1" required>
             </label>
             <label>
-              Result Size
+              相似用户数量
               <input type="number" name="top" min="1" max="50" value="10" required>
             </label>
-            <button type="submit">Run Similarity Analysis</button>
+            <button type="submit">进行相似分析</button>
           </form>
-          <div id="similar-users-result" class="result-area empty">Waiting for query</div>
+          <div id="similar-users-result" class="result-area empty">等待请求中</div>
         </section>
 
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h2>F4 Recommendations</h2>
-              <p>Generate personalized video recommendations from the target user history.</p>
+              <h2>F4 视频推荐系统</h2>
+              <p>根据目标用户的观看喜好与相似用户观看记录来给用户推荐相关视频</p>
             </div>
           </div>
           <form class="query-form" data-endpoint="/api/recommendations" data-target="recommendations-result">
             <label>
-              User ID
+              用户编号
               <input type="number" name="user_id" min="1" value="1" required> <!--required表示必填项-->
             </label>
             <label>
-              Top N
+              视频排位数
               <input type="number" name="top" min="1" max="30" value="10" required>
             </label>
             <label>
-              Similar Users
+              相似用户数
               <input type="number" name="similar_users" min="1" max="100" value="20" required>
             </label>
-            <button type="submit">Generate Recommendations</button>
+            <button type="submit">生成推荐</button>
           </form>
-          <div id="recommendations-result" class="result-area empty">Waiting for query</div>   <!--背后有js控制-->
+          <div id="recommendations-result" class="result-area empty">等待请求中</div>   <!--背后有js控制-->
         </section>
 
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h2>F5 Popularity Forecast</h2>
-              <p>Predict how a target video heat score may change in the next few days.</p>
+              <h2>F5 视频热度预测</h2>
+              <p>预测一个视频未来的热度变化</p>
             </div>
           </div>
           <form class="query-form" data-endpoint="/api/video-trend" data-target="video-trend-result">
             <label>
-              Video ID 
+              视频编号 
               <input type="number" name="video_id" min="1" value="1" required>
             </label>
             <label>
-              History Days ( 7 - 180 days)
+              依据的历史天数 ( 7 - 180 天)
               <input type="number" name="history_days" min="7" max="180" value="30" required>
             </label>
             <label>
-              Forecast Days
+              预测天数
               <input type="number" name="predict_days" min="1" max="30" value="7" required>
             </label>
-            <button type="submit">Forecast Popularity</button>
+            <button type="submit">预测热度</button>
           </form>
-          <div id="video-trend-result" class="result-area empty">Waiting for query</div>
+          <div id="video-trend-result" class="result-area empty">等待请求中</div>
         </section>
 
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h2>F6 Video Clusters</h2>
-              <p>Group videos by viewer interest patterns and engagement characteristics.</p>
+              <h2>F6 视频聚类</h2>
+              <p>将视频按照它们的特征进行分类展示</p>
             </div>
           </div>
           <form class="query-form" data-endpoint="/api/video-clusters" data-target="video-clusters-result">
             <label>
-              Cluster Count
+              簇类数量
               <input type="number" name="clusters" min="2" max="20" value="5" required>
             </label>
             <label>
-              Samples Per Cluster
+              每类的样例数量
               <input type="number" name="sample" min="1" max="20" value="6" required>
             </label>
-            <button type="submit">Analyze Video Clusters</button>
+            <button type="submit">进行聚类分析</button>
           </form>
-          <div id="video-clusters-result" class="result-area empty">Waiting for query</div>
+          <div id="video-clusters-result" class="result-area empty">等待请求中</div>
         </section>
 
         <section class="panel">
           <div class="panel-heading">
             <div>
-              <h2>F7 User Clusters</h2>
-              <p>Group users by viewing interests and engagement behavior.</p>
+              <h2>F7 用户聚类</h2>
+              <p>将用户按照它们的特征进行分类展示</p>
             </div>
           </div>
           <form class="query-form" data-endpoint="/api/user-clusters" data-target="user-clusters-result">
             <label>
-              Cluster Count
+              簇类数量
               <input type="number" name="clusters" min="2" max="20" value="5" required>
             </label>
             <label>
-              Samples Per Cluster
+              每类的样例数量
               <input type="number" name="sample" min="1" max="30" value="8" required>
             </label>
-            <button type="submit">Analyze User Clusters</button>
+            <button type="submit">进行聚类分析</button>
           </form>
-          <div id="user-clusters-result" class="result-area empty">Waiting for query</div>
+          <div id="user-clusters-result" class="result-area empty">等待请求中</div>
         </section>
       </main>
     </div>
@@ -229,7 +216,7 @@ JavaScript (前端逻辑 / 动作)
 
       function setLoading(target) {
         target.classList.remove("empty", "error"); //why remove?
-        target.innerHTML = '<div class="loading">Computing result...</div>';
+        target.innerHTML = '<div class="loading">计算结果中......</div>';
       }
 
       function setError(target, message) {
