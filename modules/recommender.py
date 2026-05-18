@@ -78,7 +78,9 @@ def recommend_videos(
         similar_user_id = int(user["user_id"])
         similarity_score = float(user["similarity_score"])
 
-        for video_id, raw_score in user_video_scores[similar_user_id].items():
+        for index, (video_id, raw_score) in enumerate(user_video_scores[similar_user_id].items()):
+            if index >= 30:
+                break
             if video_id in seen_videos:
                 continue
             candidate_scores[video_id] += raw_score * similarity_score
