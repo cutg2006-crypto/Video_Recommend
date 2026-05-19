@@ -34,7 +34,7 @@ def build_video_daily_heat(
     file_path = Path(data_dir) / "watch_logs.csv"
     video_daily_heat: Dict[int, Dict[date, float]] = defaultdict(
         lambda: defaultdict(float)
-    )
+    ) 
     min_day = None  # type: Optional[date]
     max_day = None  # type: Optional[date]
 
@@ -46,7 +46,7 @@ def build_video_daily_heat(
             liked = int(row["liked"])
             commented = int(row["commented"])
             shared = int(row["shared"])
-            watch_day = datetime.fromisoformat(row["watch_time"]).date()
+            watch_day = datetime.fromisoformat(row["watch_time"]).date() #只取日期部分，不要时间部分
 
             heat_score = 1.0 + finish_rate + liked * 0.8 + commented * 0.6 + shared * 1.0
             video_daily_heat[video_id][watch_day] += heat_score
@@ -62,7 +62,7 @@ def build_video_daily_heat(
     return video_daily_heat, min_day, max_day
 
 
-def fill_series(
+def fill_series( #补齐所需预测热度期间热度
     daily_values: Dict[date, float],
     start_day: date,
     end_day: date,
@@ -106,8 +106,8 @@ def predict_future_heat(
     if not recent_values:
         return [0.0] * days_ahead
 
-    base_heat = moving_average(recent_values, min(7, len(recent_values)))
-    trend_slope = calculate_trend_slope(recent_values[-min(14, len(recent_values)) :])
+    base_heat = moving_average(recent_values, min(7, len(recent_values))) #这里有问题
+    trend_slope = calculate_trend_slope(recent_values[-min(14, len(recent_values)) :]) #这里也有问题
     trend_adjustment = trend_slope * 0.35
 
     predicted: List[float] = []
@@ -144,7 +144,7 @@ def predict_video_popularity(
         raise ValueError(f"Video {video_id} does not exist.")
 
     video_daily_heat, min_day, max_day = build_video_daily_heat(data_dir)
-    daily_heat = video_daily_heat.get(video_id)
+    daily_heat = video_daily_heat.get(video_id) #找到对应视频的日热度字典
     if not daily_heat:
         raise ValueError(f"Video {video_id} has no watch history.")
 

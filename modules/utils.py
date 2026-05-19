@@ -234,12 +234,12 @@ def run_kmeans(
     item_vectors: Dict[int, List[float]],
     cluster_count: int,
     max_iterations: int = 20,
-    seed: int = 20260428,
+    seed: int = 20260511,
 ) -> Tuple[Dict[int, int], List[List[float]]]:
     if not item_vectors:
         raise ValueError("No vectors available for clustering.")
 
-    item_ids = list(item_vectors)
+    item_ids = list(item_vectors) #字典转列表默认读取所有key
     if cluster_count <= 0:
         raise ValueError("cluster_count must be positive.")
     if cluster_count > len(item_ids):
@@ -258,14 +258,14 @@ def run_kmeans(
             closest_cluster = min(
                 range(cluster_count),
                 key=lambda index: euclidean_distance(vector, centroids[index]),
-            )
+            ) #从range（）中选出key最小的那个
             new_assignments[item_id] = closest_cluster
             cluster_vectors[closest_cluster].append(vector)
 
         if new_assignments == assignments:
             break
 
-        assignments = new_assignments
+        assignments = new_assignments #更新assignments
         for cluster_index in range(cluster_count):
             if cluster_vectors[cluster_index]:
                 centroids[cluster_index] = average_vectors(cluster_vectors[cluster_index])

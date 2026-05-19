@@ -47,7 +47,8 @@ def build_video_feature_vectors(
     metadata: Dict[int, VideoClusterMetadata] = {}
 
     for video_id, video in videos.items():
-        interest_scores = video_viewer_interest_scores.get(video_id, Counter())
+        interest_scores = video_viewer_interest_scores.get(video_id, Counter()) #Counter() 计数器字典，用于处理异常情况 
+        #分析这个视频吸引的用户是喜欢什么类型的
         stats = video_engagement.get(
             video_id,
             {
@@ -73,7 +74,7 @@ def build_video_feature_vectors(
             avg_finish_rate,
             like_rate,
             share_rate,
-        ]
+        ] #注意列表加法是拼接
         metadata[video_id] = {
             "title": video["title"],
             "category": video["category"],
