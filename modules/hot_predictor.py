@@ -3,6 +3,7 @@ F5: predict the future popularity trend of a target video.
 """
 
 from __future__ import annotations
+from functools import lru_cache
 
 import argparse
 import csv
@@ -27,7 +28,7 @@ class FutureSeriesItem(TypedDict):
     date: str
     predicted_heat: float
 
-
+@lru_cache(maxsize=1)
 def build_video_daily_heat(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Tuple[Dict[int, Dict[date, float]], date, date]:
@@ -89,14 +90,39 @@ def moving_average(values: List[float], window_size: int) -> float:
     return sum(window) / len(window)
 
 
-def calculate_trend_slope(values: List[float]) -> float:
+def average(values: List[float]) -> float:
+    if not values:
+        return 0.0
+    return sum(values) / len(values)
+
+
+def weighted_average(values: List[float]) -> float:
+    if not values:
+        return 0.0
+
+    weights = list(range(1, len(values) + 1))
+    weighted_sum = sum(value * weight for value, weight in zip(values, weights))
+    return weighted_sum / sum(weights)
+
+
+def calculate_linear_trend(values: List[float]) -> Tuple[float, float]:
     if len(values) < 2:
-        return 0.0
-    first_half = values[: len(values) // 2]
-    second_half = values[len(values) // 2 :]
-    if not first_half or not second_half:
-        return 0.0
-    return (sum(second_half) / len(second_half)) - (sum(first_half) / len(first_half))
+        return 0.0, values[0] if values else 0.0
+
+    count = len(values)
+    mean_x = (count - 1) / 2
+    mean_y = average(values)
+    denominator = sum((index - mean_x) ** 2 for index in range(count))
+
+    if denominator == 0:
+        return 0.0, mean_y
+
+    slope = sum(
+        (index - mean_x) * (value - mean_y)
+        for index, value in enumerate(values)
+    ) / denominator
+    intercept = mean_y - slope * mean_x
+    return slope, intercept
 
 
 def predict_future_heat(
@@ -106,22 +132,23 @@ def predict_future_heat(
     if not recent_values:
         return [0.0] * days_ahead
 
-    base_heat = moving_average(recent_values, min(7, len(recent_values))) #这里有问题
-    trend_slope = calculate_trend_slope(recent_values[-min(14, len(recent_values)) :]) #这里也有问题
-    trend_adjustment = trend_slope * 0.35
+    trend_slope, intercept = calculate_linear_trend(recent_values)
+    fitted_last_value = intercept + trend_slope * (len(recent_values) - 1)
+    current_level = weighted_average(recent_values)
+    base_heat = (max(0.0, fitted_last_value) + current_level) / 2
+    trend_adjustment = trend_slope * 0.8
 
     predicted: List[float] = []
-    current_base = base_heat
-    for _ in range(days_ahead):
-        current_base = max(0.0, current_base + trend_adjustment)
-        predicted.append(round(current_base, 4))
+    for day_index in range(1, days_ahead + 1):
+        predicted_heat = max(0.0, base_heat + trend_adjustment * day_index)
+        predicted.append(round(predicted_heat, 4))
 
     return predicted
 
 
 def describe_trend(history_values: List[float], future_values: List[float]) -> str:
-    history_avg = moving_average(history_values, min(7, len(history_values)))
-    future_avg = moving_average(future_values, len(future_values))
+    history_avg = average(history_values)
+    future_avg = average(future_values)
     delta = future_avg - history_avg
     baseline = max(history_avg, 0.1)
     relative_change = delta / baseline
@@ -172,8 +199,8 @@ def predict_video_popularity(
         "history_days": len(recent_series),
         "predict_days": predict_days,
         "trend": trend,
-        "recent_average_heat": round(moving_average(recent_values, min(7, len(recent_values))), 4),
-        "predicted_average_heat": round(moving_average(predicted_values, len(predicted_values)), 4),
+        "recent_average_heat": round(average(recent_values), 4),
+        "predicted_average_heat": round(average(predicted_values), 4),
         "history_series": recent_series,
         "future_series": future_series,
     }

@@ -249,7 +249,6 @@ def generate_watch_logs(
                 video_id = random.choice(category_to_video_ids[category])
                 is_preferred = category in interests
                 finish_rate = generate_finish_rate(is_preferred)
-                watch_seconds = random.randint(3, 180)
                 liked, commented, shared = generate_engagement_flags(
                     is_preferred,
                     finish_rate,
@@ -266,7 +265,6 @@ def generate_watch_logs(
                         "log_id": log_id,
                         "user_id": user_id,
                         "video_id": video_id,
-                        "watch_seconds": watch_seconds,
                         "finish_rate": finish_rate,
                         "liked": liked,
                         "commented": commented,
@@ -326,7 +324,7 @@ def parse_args() -> argparse.Namespace:
         description="Generate mock short-video recommendation data."
     )
     parser.add_argument("--videos", type=int, default=100_000)
-    parser.add_argument("--users", type=int, default=50_000)
+    parser.add_argument("--users", type=int, default=20_000)
     parser.add_argument("--seed", type=int, default=20260511)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_DIR)
     return parser.parse_args()

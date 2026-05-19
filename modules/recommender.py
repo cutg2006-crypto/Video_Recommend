@@ -3,6 +3,7 @@ F4: recommend related videos for a target user based on watch history.
 """
 
 from __future__ import annotations
+from functools import lru_cache
 
 import argparse
 import json
@@ -17,7 +18,7 @@ except ImportError:
     from similarity import find_similar_users
     from utils import DEFAULT_DATA_DIR, build_user_video_stats, load_videos_by_id
 
-
+@lru_cache(maxsize=1)
 def build_global_popularity(
     data_dir: Union[Path, str] = DEFAULT_DATA_DIR,
 ) -> Tuple[Dict[int, float], Dict[str, Dict[int, float]]]:
@@ -78,7 +79,9 @@ def recommend_videos(
         similar_user_id = int(user["user_id"])
         similarity_score = float(user["similarity_score"])
 
-        for video_id, raw_score in user_video_scores[similar_user_id].items():
+        for index, (video_id, raw_score) in enumerate(user_video_scores[similar_user_id].items()):
+            if index >= 30:
+                break
             if video_id in seen_videos:
                 continue
             candidate_scores[video_id] += raw_score * similarity_score

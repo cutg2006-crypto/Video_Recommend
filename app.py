@@ -33,10 +33,10 @@ def parse_positive_int(name: str, default: int, minimum: int = 1, maximum: int =
 
 def count_csv_rows(file_path: Path) -> int:
     with file_path.open("r", encoding="utf-8") as file:
-        return max(sum(1 for _ in file) - 1, 0)
+        return max(sum(1 for _ in file) - 1, 0) #计算csv总共有多少行
 
 
-@lru_cache(maxsize=1)
+@lru_cache(maxsize=1) #将函数计算结果暂存，下次调用时不再计算，而是直接返回上次结果，maxsize=1代表只缓存一组结果
 def get_dataset_summary() -> Dict[str, Any]:
     videos = load_videos_by_id(DATA_DIR)
     users = load_user_profiles(DATA_DIR)
@@ -124,7 +124,7 @@ def cached_user_clusters(cluster_count: int, sample_per_cluster: int) -> List[Di
     )
 
 
-@app.route("/")
+@app.route("/") #访问根路径，执行index函数，展示"index.html"界面
 def index() -> str:
     return render_template("index.html", summary=get_dataset_summary())
 
